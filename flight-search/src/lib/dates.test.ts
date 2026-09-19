@@ -56,21 +56,29 @@ describe("resolveDates", () => {
       expect(resolve({ mode: "relative_day", dayAnchor })?.range).toEqual({ start: expected, end: expected });
     });
 
-    it("treats a bare weekday as the next one on or after today", () => {
-      expect(resolve({ mode: "relative_day", dayAnchor: "weekday", weekday: "Friday" })?.range.start).toBe("2026-09-18");
-      expect(resolve({ mode: "relative_day", dayAnchor: "weekday", weekday: "Tuesday" })?.range.start).toBe("2026-09-22");
+    it("treats a bare weekday as the next one after today", () => {
+      expect(resolve({ mode: "relative_day", weekday: "Tuesday" })?.range.start).toBe("2026-09-22");
+      // Today is a Friday, and someone who means today says "today".
+      expect(resolve({ mode: "relative_day", weekday: "Friday" })?.range.start).toBe("2026-09-25");
+    });
+
+    it("lets a named weekday win over a stray today or tomorrow answer", () => {
+      // Jev answered "tomorrow" here for "Toronto to New York on Friday Evening".
+      const friday = resolve({ mode: "relative_day", dayAnchor: "tomorrow", weekday: "Friday" });
+      expect(friday?.range.start).toBe("2026-09-25");
+      expect(friday?.used).toEqual(["mode", "weekday", "weekOffset"]);
+    });
+
+    it("keeps 'this Friday' on today when today is Friday", () => {
+      expect(resolve({ mode: "relative_day", weekday: "Friday", weekOffset: "current" })?.range.start).toBe(TODAY);
     });
 
     it("moves 'next Friday' into the following week", () => {
-      const next = resolve({ mode: "relative_day", dayAnchor: "weekday", weekday: "Friday", weekOffset: "next" });
-      expect(next?.range.start).toBe("2026-09-25");
-      expect(next?.used).toEqual(["mode", "dayAnchor", "weekday", "weekOffset"]);
+      expect(resolve({ mode: "relative_day", weekday: "Friday", weekOffset: "next" })?.range.start).toBe("2026-09-25");
     });
 
     it("rolls 'this Monday' forward when it has already passed", () => {
-      expect(
-        resolve({ mode: "relative_day", dayAnchor: "weekday", weekday: "Monday", weekOffset: "current" })?.range.start,
-      ).toBe("2026-09-21");
+      expect(resolve({ mode: "relative_day", weekday: "Monday", weekOffset: "current" })?.range.start).toBe("2026-09-21");
     });
   });
 

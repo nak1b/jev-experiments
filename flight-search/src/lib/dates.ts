@@ -26,7 +26,7 @@ export type Month = (typeof MONTHS)[number];
 export type Weekday = (typeof WEEKDAYS)[number];
 
 export const DATE_MODES = ["calendar_date", "relative_day", "period", "none"] as const;
-export const DAY_ANCHORS = ["today", "tomorrow", "day_after", "weekday", "none"] as const;
+export const DAY_ANCHORS = ["today", "tomorrow", "day_after", "none"] as const;
 export const WEEK_OFFSETS = ["current", "next", "none"] as const;
 export const PERIOD_KINDS = ["weekend", "week", "early_month", "mid_month", "late_month", "whole_month", "none"] as const;
 export const MONTH_OFFSETS = ["this_month", "next_month", "month_after_next", "none"] as const;
@@ -90,7 +90,7 @@ export function eachDay(range: DateRange): string[] {
 }
 
 /*
- * A bare weekday means the next one on or after today.
+ * A bare weekday means the next one after today. Someone who means today says "today".
  * "next" means that weekday in the following calendar week.
  * "current" means this week, rolling forward a week if that day has passed.
  */
@@ -102,7 +102,7 @@ function resolveWeekday(today: string, weekday: Weekday, offset: DateParts["week
     const day = addDays(thisMonday, target);
     return day >= today ? day : addDays(day, 7);
   }
-  return addDays(today, (target - weekdayIndex(today) + 7) % 7);
+  return addDays(today, (target - weekdayIndex(today) + 7) % 7 || 7);
 }
 
 function resolveCalendarDate(parts: DateParts, today: string): ResolvedDates | null {
@@ -115,21 +115,22 @@ function resolveCalendarDate(parts: DateParts, today: string): ResolvedDates | n
   return { range: { start: day, end: day }, used: ["mode", "month", "day"] };
 }
 
+/* A named weekday wins, because Jev reads it far more reliably than the today and tomorrow words. */
 function resolveRelativeDay(parts: DateParts, today: string): ResolvedDates | null {
   const single = (day: string, used: (keyof DateParts)[]): ResolvedDates => ({
     range: { start: day, end: day },
-    used: ["mode", "dayAnchor", ...used],
+    used: ["mode", ...used],
   });
+  if (parts.weekday !== "none") {
+    return single(resolveWeekday(today, parts.weekday, parts.weekOffset), ["weekday", "weekOffset"]);
+  }
   switch (parts.dayAnchor) {
     case "today":
-      return single(today, []);
+      return single(today, ["dayAnchor"]);
     case "tomorrow":
-      return single(addDays(today, 1), []);
+      return single(addDays(today, 1), ["dayAnchor"]);
     case "day_after":
-      return single(addDays(today, 2), []);
-    case "weekday":
-      if (parts.weekday === "none") return null;
-      return single(resolveWeekday(today, parts.weekday, parts.weekOffset), ["weekday", "weekOffset"]);
+      return single(addDays(today, 2), ["dayAnchor"]);
     case "none":
       return null;
   }

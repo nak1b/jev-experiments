@@ -25,8 +25,14 @@ export const CORE_QUESTIONS = {
     "The traveler says where they want to fly to, either by naming a place or by describing the kind of place.",
   ),
   destination: choice("Which city or airport best fits where the traveler wants to fly to?", airportOptions),
-  nonstop: noul("The traveler asks for a nonstop or direct flight."),
-  avoid_overnight: noul("The traveler wants to avoid overnight or red-eye flights."),
+  nonstop: noul("The traveler asks for a nonstop or direct flight.", {
+    true: "The message says nonstop, direct, or no layovers.",
+    false: "The message does not mention stops or layovers.",
+  }),
+  avoid_overnight: noul("The traveler asks to avoid overnight or red-eye flights.", {
+    true: "The message says no red-eyes, no overnight flights, or something with the same meaning.",
+    false: "The message does not mention red-eyes or overnight flights. Asking for an evening departure does not count.",
+  }),
   departure_time: choice("At what time of day does the traveler want the flight to depart?", {
     early_morning: "Early morning, before 8am",
     morning: "Morning, from 8am to noon",
@@ -42,10 +48,10 @@ export const CORE_QUESTIONS = {
     first: "First class",
     unspecified: "The traveler does not say a cabin",
   }),
-  priority: score("How much does the traveler care about a low price compared with comfort and convenience?", [
-    "Price matters most. The traveler asks for something cheap or on a budget.",
-    "The traveler does not say whether price or comfort matters more.",
-    "Comfort and convenience matter most. The traveler is willing to pay more.",
+  priority: score("How much does the traveler care about a low price compared with a fast, convenient trip?", [
+    "Price comes first. The traveler asks for something cheap, low-cost, or on a budget.",
+    "The traveler does not compare price with speed or convenience. Picking a cabin, a time, or an airline does not count.",
+    "Speed or convenience comes first. The traveler asks for the fastest or shortest trip, or says they will pay more.",
   ]),
   date_mode: choice("How does the traveler say when they want to depart?", {
     calendar_date: "A calendar date that names a month, such as 'October 12' or 'the 3rd of March'",
@@ -61,12 +67,11 @@ export const CORE_QUESTIONS = {
     ...labelsOnly(DAYS_OF_MONTH),
     none: NOT_SAID,
   }),
-  day_anchor: choice("If the departure is one day relative to today, which day is it?", {
-    today: null,
-    tomorrow: null,
-    day_after: "The day after tomorrow",
-    weekday: "A named day of the week",
-    none: NOT_SAID,
+  day_anchor: choice("Which of these words does the traveler use for the departure day?", {
+    today: "'today' or 'tonight'",
+    tomorrow: "'tomorrow'",
+    day_after: "'the day after tomorrow'",
+    none: "None of these words. A day of the week, such as Friday, counts as none.",
   }),
   weekday: choice("If the departure names a day of the week, which day is it?", {
     ...labelsOnly(WEEKDAYS),
@@ -86,6 +91,10 @@ export const CORE_QUESTIONS = {
     whole_month: "A whole month",
     none: NOT_SAID,
   }),
+  avoids_airline: noul("The traveler names one or more airlines they do not want to fly with.", {
+    true: "The message names an airline and asks to avoid it, such as 'not on Ryanair' or 'no United'.",
+    false: "The message does not name an airline to avoid.",
+  }),
   month_offset: choice("If the departure period is a month given relative to now, which month is it?", {
     this_month: "This month",
     next_month: "Next month",
@@ -98,9 +107,16 @@ export function airlineQuestionKey(airlineCode: string): string {
   return `avoid_airline_${airlineCode}`;
 }
 
+/*
+ * Asked for every message, but only read when CORE_QUESTIONS.avoids_airline says an airline is named.
+ * Without that gate, Jev leans toward yes for airlines that do not fit the route.
+ */
 export const AIRLINE_QUESTIONS = Object.fromEntries(
   AIRLINES.map((airline) => [
     airlineQuestionKey(airline.code),
-    noul(`The traveler does not want to fly with ${airline.name}.`),
+    noul(`The traveler asks to avoid ${airline.name}.`, {
+      true: `Says not to fly ${airline.name}.`,
+      false: `Does not say to avoid ${airline.name}.`,
+    }),
   ]),
 );

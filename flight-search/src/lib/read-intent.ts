@@ -125,6 +125,14 @@ function readPriority(answers: CoreAnswers): SearchIntent["priority"] {
   return reading(value, confidence, confidence >= CHOICE_SURE);
 }
 
+function readAvoidedAirlines(answers: CoreAnswers, airlineNouls: Readonly<Record<string, number>>): Reading<string>[] {
+  if (answers.avoids_airline.noul < NOUL_GUESS) return [];
+  return AIRLINES.flatMap((airline) => {
+    const avoid = readNoul(airlineNouls[airlineQuestionKey(airline.code)] ?? 0);
+    return avoid ? [{ ...avoid, value: airline.code }] : [];
+  });
+}
+
 export function readIntent(
   answers: CoreAnswers,
   airlineNouls: Readonly<Record<string, number>>,
@@ -143,9 +151,6 @@ export function readIntent(
     avoidOvernight: readNoul(answers.avoid_overnight.noul),
     cabin: readChoice(answers.cabin, CABINS),
     priority: readPriority(answers),
-    avoidAirlines: AIRLINES.flatMap((airline) => {
-      const avoid = readNoul(airlineNouls[airlineQuestionKey(airline.code)] ?? 0);
-      return avoid ? [{ ...avoid, value: airline.code }] : [];
-    }),
+    avoidAirlines: readAvoidedAirlines(answers, airlineNouls),
   };
 }

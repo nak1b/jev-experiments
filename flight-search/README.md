@@ -8,15 +8,15 @@ Run it from the repo root with `npm run dev:flight-search`, then open http://loc
 
 ## How it uses Jev
 
-Each time you pause typing for 250 ms, the page sends your sentence to Jev in a single call with 42 questions.
+Each time you pause typing for 250 ms, the page sends your sentence to Jev in a single call with 43 questions.
 Jev answers all of them in parallel, and the code ignores the ones that do not apply.
 TypeSafe calls this speculative fan-out.
 
 | Question type | Used for |
 | --- | --- |
 | Choice | Origin and destination (each over 79 airports), time of day, cabin, and the parts of a date |
-| Noul | Whether a place is named, nonstop, no red-eyes, and one question per airline to avoid (24) |
-| Score | How much the traveler cares about price compared with comfort |
+| Noul | Whether a place is named, nonstop, no red-eyes, whether any airline is named, and one question per airline to avoid (24) |
+| Score | How much the traveler cares about price compared with a fast, convenient trip |
 
 Every answer comes with a probability or a confidence, and the page acts on it in three bands.
 
@@ -26,8 +26,13 @@ Every answer comes with a probability or a confidence, and the page acts on it i
 
 If you describe a kind of place, like "somewhere warm in Europe", the page lists the airports where Jev put the most probability.
 
+The per-airline answers only count when the "is any airline named" question says yes.
+Without that gate, Jev leans toward yes for airlines that do not fit the route.
+Yes-or-no questions also spell out what counts as no, so a preference you never mentioned stays off.
+
 Jev is weak at arithmetic and does not generate text, so code does that work.
 For dates, Jev only reads the parts ("October", "12", "next", "Friday", "early in the month") and `src/lib/dates.ts` turns them into real dates.
+A named weekday wins over the "today" or "tomorrow" question, because Jev reads weekdays far more reliably.
 This follows TypeSafe's own date extraction recipe.
 
 ## How a reading flows
@@ -35,7 +40,7 @@ This follows TypeSafe's own date extraction recipe.
 ```mermaid
 flowchart LR
   A[Search box] -->|sentence, 250 ms after typing stops| B["/api/interpret"]
-  B -->|42 questions, one call| C[Jev]
+  B -->|43 questions, one call| C[Jev]
   C -->|answers and token usage| B
   B -->|readings, cost, timing| D[Signs and cost panel]
   D -->|sure and confirmed readings| E[Sample flights]

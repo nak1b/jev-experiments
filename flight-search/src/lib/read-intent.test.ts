@@ -24,6 +24,7 @@ function answers(overrides: Overrides = {}): CoreAnswers {
     destination: choice("LHR", 0.1),
     nonstop: noul(0.02),
     avoid_overnight: noul(0.02),
+    avoids_airline: noul(0.02),
     departure_time: choice("any"),
     cabin: choice("unspecified"),
     priority: { type: "score", score: 1, confidence: 0.9, probabilities: { 0: 0.05, 1: 0.9, 2: 0.05 } },
@@ -133,8 +134,37 @@ describe("readIntent", () => {
     expect(intent.departureTime).toBeNull();
   });
 
-  it("lists airlines to avoid", () => {
-    const intent = readIntent(answers(), { [airlineQuestionKey("FR")]: 0.96, [airlineQuestionKey("U2")]: 0.1 }, TODAY);
+  it("lists airlines to avoid when the traveler names one", () => {
+    const intent = readIntent(
+      answers({ avoids_airline: { noul: 0.95 } }),
+      { [airlineQuestionKey("FR")]: 0.96, [airlineQuestionKey("U2")]: 0.1 },
+      TODAY,
+    );
     expect(intent.avoidAirlines).toEqual([{ value: "FR", certainty: "sure", confidence: 0.96 }]);
+  });
+
+  it("ignores airline answers when no airline is named", () => {
+    // Jev scored Cathay Pacific 0.83 for "Toronto to New York on Friday Evening".
+    const intent = readIntent(answers({ avoids_airline: { noul: 0.1 } }), { [airlineQuestionKey("CX")]: 0.83 }, TODAY);
+    expect(intent.avoidAirlines).toEqual([]);
+  });
+
+  it("reads a bare weekday even when Jev also answers tomorrow", () => {
+    // Real answers for "Toronto to New York on Friday Evening".
+    const intent = readIntent(
+      answers({
+        date_mode: { choice: "relative_day", confidence: 0.82 },
+        day_anchor: { choice: "tomorrow", confidence: 0.28 },
+        weekday: { choice: "Friday", confidence: 1 },
+        week_offset: { choice: "none", confidence: 0.93 },
+      }),
+      {},
+      TODAY,
+    );
+    expect(intent.dates).toEqual({
+      value: { start: "2026-09-25", end: "2026-09-25" },
+      certainty: "sure",
+      confidence: 0.82,
+    });
   });
 });
