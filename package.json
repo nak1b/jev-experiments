@@ -1,0 +1,11 @@
+{
+  "name": "jev-experiments",
+  "private": true,
+  "workspaces": [],
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
