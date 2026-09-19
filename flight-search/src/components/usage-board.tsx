@@ -6,12 +6,12 @@ import { summarize, type JevCall } from "@/lib/usage";
 
 /*
  * The experiment's numbers: what Jev readings cost, how many tokens they use, and how fast they come back.
- * Signal yellow always marks the latest reading.
+ * Signal yellow marks the running totals for the visit. Each reading costs about the same, so the total is the number that moves.
  */
 
 type UsageProps = { calls: readonly JevCall[]; reading: boolean };
 
-function LatestStat({ value, label, large = false }: { value: ReactNode; label: string; large?: boolean }) {
+function HeadlineStat({ value, label, large = false }: { value: ReactNode; label: string; large?: boolean }) {
   return (
     <div>
       <p className={`font-semibold leading-none tracking-tight text-signal ${large ? "text-[34px]" : "text-[26px]"}`}>
@@ -22,7 +22,7 @@ function LatestStat({ value, label, large = false }: { value: ReactNode; label: 
   );
 }
 
-function VisitRow({ label, value }: { label: string; value: string }) {
+function StatRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-1.5">
       <dt className="text-[13px] text-panel-ink/80">{label}</dt>
@@ -50,28 +50,20 @@ export function UsageSidebar({ calls, reading }: UsageProps) {
 
       {last ? (
         <>
-          <h3 className="mt-5 text-[13px] text-panel-ink/60">Last reading</h3>
+          <h3 className="mt-5 text-[13px] text-panel-ink/60">This visit</h3>
           <div className="mt-3 space-y-5">
-            <LatestStat large value={formatSpend(last.costUsd)} label="Cost" />
+            <HeadlineStat large value={formatSpend(visit.costUsd)} label="Spent" />
             <div className="grid grid-cols-2 gap-4">
-              <LatestStat value={formatCount(last.tokens)} label="Tokens" />
-              <LatestStat
-                value={
-                  <>
-                    {formatCount(last.latencyMs)}
-                    <span className="ml-1 text-[0.55em] font-medium">ms</span>
-                  </>
-                }
-                label="Response time"
-              />
+              <HeadlineStat value={formatCount(visit.tokens)} label="Tokens" />
+              <HeadlineStat value={formatCount(visit.readings)} label={visit.readings === 1 ? "Reading" : "Readings"} />
             </div>
           </div>
 
-          <h3 className="mt-6 border-t border-panel-ink/15 pt-5 text-[13px] text-panel-ink/60">This visit</h3>
+          <h3 className="mt-6 border-t border-panel-ink/15 pt-5 text-[13px] text-panel-ink/60">Last reading</h3>
           <dl className="mt-2">
-            <VisitRow label="Spent" value={formatSpend(visit.costUsd)} />
-            <VisitRow label="Tokens" value={formatCount(visit.tokens)} />
-            <VisitRow label="Readings" value={formatCount(visit.readings)} />
+            <StatRow label="Cost" value={formatSpend(last.costUsd)} />
+            <StatRow label="Tokens" value={formatCount(last.tokens)} />
+            <StatRow label="Response time" value={`${formatCount(last.latencyMs)} ms`} />
           </dl>
         </>
       ) : (
@@ -96,13 +88,13 @@ export function UsageTopBar({ calls, reading }: UsageProps) {
         {last ? (
           <>
             <p className="flex flex-wrap items-baseline gap-x-4 text-[15px] font-semibold tabular-nums text-signal">
-              <span className="sr-only text-[13px] font-normal text-panel-ink/70 sm:not-sr-only">Last reading</span>
-              <span>{formatSpend(last.costUsd)}</span>
-              <span>{formatCount(last.tokens)} tokens</span>
-              <span>{formatCount(last.latencyMs)} ms</span>
+              <span className="sr-only text-[13px] font-normal text-panel-ink/70 sm:not-sr-only">This visit</span>
+              <span>{formatSpend(visit.costUsd)}</span>
+              <span>{formatCount(visit.tokens)} tokens</span>
+              <span>{readings}</span>
             </p>
             <p className="text-[13px] tabular-nums text-panel-ink/70">
-              This visit: {formatSpend(visit.costUsd)}, {formatCount(visit.tokens)} tokens, {readings}
+              Last reading: {formatSpend(last.costUsd)}, {formatCount(last.tokens)} tokens, {formatCount(last.latencyMs)} ms
             </p>
           </>
         ) : (
