@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "flight-search",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev:flight-search"
+      ],
+      "port": 3000
+    }
+  ]
+}

@@ -1,8 +1,14 @@
 {
   "name": "jev-experiments",
   "private": true,
-  "workspaces": [],
+  "workspaces": [
+    "flight-search"
+  ],
   "scripts": {
+    "dev:flight-search": "npm run dev --workspace flight-search",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
     "prepare": "husky"
   },
   "devDependencies": {

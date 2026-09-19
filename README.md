@@ -13,7 +13,9 @@ Read more in the [TypeSafe docs](https://docs.typesafe.ai/introduction).
 
 ## Experiments
 
-None yet. See "Adding an experiment" below.
+| Experiment | What it tries | Stack | Run from the root |
+| --- | --- | --- | --- |
+| [flight-search](flight-search/README.md) | Turns a trip described in plain words into a live flight search, and shows the cost, tokens and speed of every Jev call. | Next.js, TypeScript, Tailwind | `npm run dev:flight-search` |
 
 ## Setup
 
@@ -21,12 +23,16 @@ None yet. See "Adding an experiment" below.
 2. Create your local env file with `cp .env.example .env.local`.
 3. Paste your key from the [TypeSafe console](https://console.typesafe.ai/settings/keys) into `.env.local`.
 4. Keep the file private with `chmod 600 .env.local`.
-5. Start an experiment with the command in its README.
+5. Start an experiment with the command in the table.
 
 Every experiment reads the key from this one root `.env.local`.
 It is gitignored, and a pre-commit hook blocks any commit that contains it.
 
+## Checks
+
+Run `npm run lint`, `npm run typecheck` and `npm test` at the root to check every experiment at once.
+
 ## Adding an experiment
 
 Create a folder at the root, add it to `workspaces` and add a `dev:<name>` script in the root `package.json`.
-Give it a README that explains how it works and how it uses Jev, then add it to the experiments list above.
+Give it a README that explains how it works and how it uses Jev, then add it to the table above.

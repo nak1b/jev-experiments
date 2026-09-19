@@ -1,0 +1,47 @@
+import { APIUserAbortError, AuthenticationError, RateLimitError } from "@typesafe-ai/sdk";
+import { isIsoDate } from "@/lib/dates";
+import type { InterpretErrorBody, InterpretErrorCode } from "@/lib/intent";
+import { interpret } from "@/lib/interpret";
+import { hasTypeSafeApiKey } from "@/lib/typesafe";
+
+// Each call spends API credit, so a long paste should not reach Jev.
+const MAX_QUERY_LENGTH = 300;
+
+function fail(status: number, code: InterpretErrorCode, message: string) {
+  return Response.json({ error: { code, message } } satisfies InterpretErrorBody, { status });
+}
+
+export async function POST(request: Request) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return fail(400, "invalid_request", "Send a JSON body with query and today.");
+  }
+
+  const { query, today } = (body ?? {}) as { query?: unknown; today?: unknown };
+  if (typeof query !== "string" || !query.trim() || query.length > MAX_QUERY_LENGTH) {
+    return fail(400, "invalid_request", `Send a query between 1 and ${MAX_QUERY_LENGTH} characters.`);
+  }
+  if (typeof today !== "string" || !isIsoDate(today)) {
+    return fail(400, "invalid_request", "Send today as a YYYY-MM-DD date.");
+  }
+  if (!hasTypeSafeApiKey()) {
+    return fail(500, "missing_api_key", "Add TYPESAFE_API_KEY to .env.local at the repo root, then restart the dev server.");
+  }
+
+  try {
+    return Response.json(await interpret(query.trim(), today, request.signal));
+  } catch (error) {
+    // The browser moved on to a newer query, so nobody reads this response.
+    if (error instanceof APIUserAbortError) return new Response(null, { status: 499 });
+    if (error instanceof RateLimitError) {
+      return fail(429, "rate_limited", "Jev is getting too many requests. Keep typing to try again.");
+    }
+    if (error instanceof AuthenticationError) {
+      return fail(502, "invalid_api_key", "TypeSafe rejected the API key in the root .env.local. Check it or create a new one.");
+    }
+    console.error("Jev request failed", error);
+    return fail(502, "upstream_error", "Jev could not read that request. The server log has details.");
+  }
+}
