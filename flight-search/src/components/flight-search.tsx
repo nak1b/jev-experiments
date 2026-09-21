@@ -4,13 +4,13 @@ import { TriangleAlert, X } from "lucide-react";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { getAirport } from "@/lib/airports";
 import { generateFlights, searchFlights } from "@/lib/flights";
+import type { SearchIntent } from "@/lib/intent";
 import { buildSearch, type Sign } from "@/lib/search-state";
 import { DestinationSuggestions } from "./destination-suggestions";
 import { FlightBoard } from "./flight-board";
 import { HomeAirportSign, SignView } from "./sign";
 import { useHomeAirport } from "./use-home-airport";
-import { UsageSidebar, UsageTopBar } from "./usage-board";
-import { localToday, useInterpret } from "./use-interpret";
+import { localToday, UsageSidebar, UsageTopBar, useJevReading } from "@jev/kit";
 
 const EXAMPLES = [
   "Cheap nonstop from Boston to Lisbon early next month",
@@ -36,7 +36,11 @@ export function FlightSearch() {
   const [dismissed, setDismissed] = useState(EMPTY);
   const [picked, setPicked] = useState<string | null>(null);
   const [home, setHome] = useHomeAirport();
-  const { status, response, failure, calls, clear } = useInterpret(query);
+  const { status, data: intentData, failure, calls, clear } = useJevReading<SearchIntent>({
+    endpoint: "/api/interpret",
+    text: query,
+    body: { today: localToday() },
+  });
 
   // The box grows with the sentence so the traveler can always see everything Jev reads.
   useLayoutEffect(() => {
@@ -68,7 +72,7 @@ export function FlightSearch() {
 
   const hasQuery = query.trim() !== "";
   const reading = status === "loading";
-  const intent = hasQuery ? (response?.intent ?? null) : null;
+  const intent = hasQuery ? intentData : null;
   const search = intent
     ? buildSearch(intent, { confirmed, dismissed, homeAirport: home, pickedDestination: picked }, localToday())
     : null;

@@ -8,7 +8,8 @@ import { getAirport } from "./airports";
 import { defaultRange, type DateRange } from "./dates";
 import type { FlightFilters } from "./flights";
 import { formatRange } from "./format";
-import type { Cabin, Priority, Reading, SearchIntent, TimeOfDay } from "./intent";
+import type { Reading } from "@jev/kit";
+import type { Cabin, Priority, SearchIntent, TimeOfDay } from "./intent";
 
 export type SignField =
   | "origin"

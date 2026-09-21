@@ -3,6 +3,7 @@
 Experiments with Jev, the TypeSafe System One model.
 Each experiment lives in its own folder at the repo root and has its own AGENTS.md with rules for that folder.
 Read it before changing the experiment.
+Shared code lives in `packages/kit`. Put anything two experiments both need there, rather than copying it.
 
 ## Tech stack
 

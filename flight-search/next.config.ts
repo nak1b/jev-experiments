@@ -8,6 +8,9 @@ import path from "node:path";
  */
 loadEnvConfig(path.join(__dirname, ".."), process.env.NODE_ENV !== "production");
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  // The kit ships TypeScript source, so Next compiles it with the app.
+  transpilePackages: ["@jev/kit"],
+};
 
 export default nextConfig;

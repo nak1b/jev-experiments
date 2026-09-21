@@ -1,0 +1,22 @@
+{
+  "name": "@jev/kit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./theme.css": "./src/theme.css"
+  },
+  "peerDependencies": {
+    "react": "^19"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "typescript": "^5",
+    "vitest": "^5.0.1"
+  }
+}

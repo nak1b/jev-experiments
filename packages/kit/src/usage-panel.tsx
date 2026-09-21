@@ -1,8 +1,8 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
-import { formatCount, formatSpend } from "@/lib/format";
-import { summarize, type JevCall } from "@/lib/usage";
+import { formatCount, formatSpend } from "./format";
+import { summarize, type JevCall } from "./usage";
 
 /*
  * The experiment's numbers: what Jev readings cost, how many tokens they use, and how fast they come back.

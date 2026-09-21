@@ -1,14 +1,15 @@
 import { APIUserAbortError, AuthenticationError, RateLimitError } from "@typesafe-ai/sdk";
 import { isIsoDate } from "@/lib/dates";
-import type { InterpretErrorBody, InterpretErrorCode } from "@/lib/intent";
+import type { JevErrorBody } from "@jev/kit";
+import type { InterpretErrorCode } from "@/lib/intent";
 import { interpret } from "@/lib/interpret";
 import { hasTypeSafeApiKey } from "@/lib/typesafe";
 
 // Each call spends API credit, so a long paste should not reach Jev.
-const MAX_QUERY_LENGTH = 300;
+const MAX_TEXT_LENGTH = 300;
 
 function fail(status: number, code: InterpretErrorCode, message: string) {
-  return Response.json({ error: { code, message } } satisfies InterpretErrorBody, { status });
+  return Response.json({ error: { code, message } } satisfies JevErrorBody, { status });
 }
 
 export async function POST(request: Request) {
@@ -16,12 +17,12 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return fail(400, "invalid_request", "Send a JSON body with query and today.");
+    return fail(400, "invalid_request", "Send a JSON body with text and today.");
   }
 
-  const { query, today } = (body ?? {}) as { query?: unknown; today?: unknown };
-  if (typeof query !== "string" || !query.trim() || query.length > MAX_QUERY_LENGTH) {
-    return fail(400, "invalid_request", `Send a query between 1 and ${MAX_QUERY_LENGTH} characters.`);
+  const { text, today } = (body ?? {}) as { text?: unknown; today?: unknown };
+  if (typeof text !== "string" || !text.trim() || text.length > MAX_TEXT_LENGTH) {
+    return fail(400, "invalid_request", `Send text between 1 and ${MAX_TEXT_LENGTH} characters.`);
   }
   if (typeof today !== "string" || !isIsoDate(today)) {
     return fail(400, "invalid_request", "Send today as a YYYY-MM-DD date.");
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    return Response.json(await interpret(query.trim(), today, request.signal));
+    return Response.json(await interpret(text.trim(), today, request.signal));
   } catch (error) {
     // The browser moved on to a newer query, so nobody reads this response.
     if (error instanceof APIUserAbortError) return new Response(null, { status: 499 });

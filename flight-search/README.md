@@ -60,9 +60,9 @@ That file imports `server-only`, so the build fails if client code ever imports 
 | `src/lib/dates.ts` | Calendar math for the date parts Jev reads |
 | `src/lib/search-state.ts` | Combines readings with your clicks into the search that runs |
 | `src/lib/flights.ts` | Generates and filters the sample flights |
-| `src/lib/pricing.ts` | Jev list prices, used to estimate cost |
 | `src/app/api/interpret/route.ts` | The only route that calls Jev |
-| `src/components/usage-board.tsx` | The cost, tokens and speed sidebar and top bar |
+
+The cost panel, the confidence bands and the reading hook come from [`@jev/kit`](../packages/kit/README.md), shared with the other experiments.
 
 ## Cost, tokens and speed
 
@@ -70,7 +70,7 @@ The sidebar leads with the running total for the visit: spent, tokens and readin
 The last reading's cost, tokens and response time sit below it.
 On narrow screens the same numbers sit in a bar at the top.
 Each reading costs about the same, because the 43 questions make up almost all of the input tokens and the sentence adds only a few.
-Costs are estimates from the list price in `src/lib/pricing.ts`, and only input tokens are billed.
+Costs are estimates from the list price in `packages/kit/src/pricing.ts`, and only input tokens are billed.
 Update that file when TypeSafe ships a new model version.
 
 ## Scripts

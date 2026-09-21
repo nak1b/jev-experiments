@@ -1,3 +1,15 @@
+import {
+  CHOICE_GUESS,
+  CHOICE_SURE,
+  NOUL_GUESS,
+  NOUL_SURE,
+  oneOf,
+  readChoice,
+  readNoul,
+  reading,
+  type ChoiceAnswer,
+  type Reading,
+} from "@jev/kit";
 import type { SystemOneResult } from "@typesafe-ai/sdk";
 import { AIRLINES } from "./airlines";
 import { isAirportCode } from "./airports";
@@ -13,49 +25,17 @@ import {
   type DateParts,
   type DateRange,
 } from "./dates";
-import {
-  CABINS,
-  TIMES_OF_DAY,
-  type DestinationSuggestion,
-  type Reading,
-  type SearchIntent,
-} from "./intent";
+import { CABINS, TIMES_OF_DAY, type DestinationSuggestion, type SearchIntent } from "./intent";
 import { airlineQuestionKey, type CORE_QUESTIONS } from "./questions";
 
 export type CoreAnswers = SystemOneResult<typeof CORE_QUESTIONS>["answers"];
 
-type ChoiceAnswer = { choice: string; confidence: number };
-
-/* Starting thresholds from the TypeSafe confidence guide. Tune them against real requests. */
-export const NOUL_SURE = 0.8;
-export const NOUL_GUESS = 0.5;
-export const CHOICE_SURE = 0.6;
-export const CHOICE_GUESS = 0.3;
-
-// The priority score runs from 0 (price first) to 2 (comfort first).
-const CHEAPEST_BELOW = 0.67;
-const BEST_ABOVE = 1.33;
-
 const MAX_SUGGESTIONS = 5;
 const MIN_SUGGESTION_PROBABILITY = 0.03;
 
-function reading<T>(value: T, confidence: number, sure: boolean): Reading<T> {
-  return { value, confidence, certainty: sure ? "sure" : "guess" };
-}
-
-function readNoul(probability: number): Reading<true> | null {
-  if (probability < NOUL_GUESS) return null;
-  return reading(true as const, probability, probability >= NOUL_SURE);
-}
-
-function oneOf<T extends string>(value: string, allowed: readonly T[]): value is T {
-  return (allowed as readonly string[]).includes(value);
-}
-
-function readChoice<T extends string>(answer: ChoiceAnswer, allowed: readonly T[]): Reading<T> | null {
-  if (!oneOf(answer.choice, allowed) || answer.confidence < CHOICE_GUESS) return null;
-  return reading(answer.choice, answer.confidence, answer.confidence >= CHOICE_SURE);
-}
+// The priority score runs from 0 (price first) to 2 (speed first).
+const CHEAPEST_BELOW = 0.67;
+const BEST_ABOVE = 1.33;
 
 /* A place needs two signals. The Noul says a place is named, and the Choice says which one. */
 function readPlace(namedProbability: number, place: ChoiceAnswer): Reading<string> | null {

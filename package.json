@@ -2,6 +2,7 @@
   "name": "jev-experiments",
   "private": true,
   "workspaces": [
+    "packages/*",
     "flight-search"
   ],
   "scripts": {

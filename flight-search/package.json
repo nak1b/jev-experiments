@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@jev/kit": "*",
     "@next/env": "16.3.5",
     "@typesafe-ai/sdk": "^0.6.0",
     "lucide-react": "^1.47.0",
