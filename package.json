@@ -3,9 +3,11 @@
   "private": true,
   "workspaces": [
     "packages/*",
+    "expense-tracker",
     "flight-search"
   ],
   "scripts": {
+    "dev:expense-tracker": "npm run dev --workspace expense-tracker",
     "dev:flight-search": "npm run dev --workspace flight-search",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",

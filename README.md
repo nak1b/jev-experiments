@@ -13,9 +13,14 @@ Read more in the [TypeSafe docs](https://docs.typesafe.ai/introduction).
 
 ## Experiments
 
-| Experiment | What it tries | Stack | Run from the root |
+| Experiment | What it tries | Questions per reading | Run from the root |
 | --- | --- | --- | --- |
-| [flight-search](flight-search/README.md) | Turns a trip described in plain words into a live flight search, and shows the cost, tokens and speed of every Jev call. | Next.js, TypeScript, Tailwind | `npm run dev:flight-search` |
+| [flight-search](flight-search/README.md) | Turns a trip described in plain words into a live flight search. | 43 | `npm run dev:flight-search` |
+| [expense-tracker](expense-tracker/README.md) | Tags an expense typed in plain words and keeps a running total. | 5 | `npm run dev:expense-tracker` |
+
+Every experiment is Next.js, TypeScript and Tailwind, and shows the cost, tokens and speed of each Jev call.
+Shared pieces live in [packages/kit](packages/kit/README.md).
+Comparing the two shows what drives cost: the number of questions, not the length of what you type.
 
 ## Setup
 
@@ -35,4 +40,6 @@ Run `npm run lint`, `npm run typecheck` and `npm test` at the root to check ever
 ## Adding an experiment
 
 Create a folder at the root, add it to `workspaces` and add a `dev:<name>` script in the root `package.json`.
+Give each app its own port, so several can run at once.
+Reuse `@jev/kit` for the look, the confidence bands and the cost panel.
 Give it a README that explains how it works and how it uses Jev, then add it to the table above.

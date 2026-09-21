@@ -9,6 +9,15 @@
         "dev:flight-search"
       ],
       "port": 3000
+    },
+    {
+      "name": "expense-tracker",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev:expense-tracker"
+      ],
+      "port": 3001
     }
   ]
 }
