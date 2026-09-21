@@ -4,11 +4,13 @@
   "workspaces": [
     "packages/*",
     "expense-tracker",
-    "flight-search"
+    "flight-search",
+    "news-filter"
   ],
   "scripts": {
     "dev:expense-tracker": "npm run dev --workspace expense-tracker",
     "dev:flight-search": "npm run dev --workspace flight-search",
+    "dev:news-filter": "npm run dev --workspace news-filter",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",

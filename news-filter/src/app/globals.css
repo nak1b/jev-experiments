@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "../../../packages/kit/src/theme.css";
+/* Tailwind does not scan linked workspace packages on its own. */
+@source "../../../packages/kit/src";
+
+:root {
+  --app-font: var(--font-overpass);
+}

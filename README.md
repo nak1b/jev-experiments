@@ -17,10 +17,11 @@ Read more in the [TypeSafe docs](https://docs.typesafe.ai/introduction).
 | --- | --- | --- | --- |
 | [flight-search](flight-search/README.md) | Turns a trip described in plain words into a live flight search. | 43 | `npm run dev:flight-search` |
 | [expense-tracker](expense-tracker/README.md) | Tags an expense typed in plain words and keeps a running total. | 5 | `npm run dev:expense-tracker` |
+| [news-filter](news-filter/README.md) | Filters the Hacker News front page with a rule, asking about 30 posts in one call or one call each. | 30 | `npm run dev:news-filter` |
 
 Every experiment is Next.js, TypeScript and Tailwind, and shows the cost, tokens and speed of each Jev call.
 Shared pieces live in [packages/kit](packages/kit/README.md).
-Comparing the two shows what drives cost: the number of questions, not the length of what you type.
+Together they show what drives cost: the number of questions, not the length of what you type, and batching questions into one call is far cheaper than sending them one at a time.
 
 ## Setup
 

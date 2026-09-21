@@ -18,6 +18,15 @@
         "dev:expense-tracker"
       ],
       "port": 3001
+    },
+    {
+      "name": "news-filter",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev:news-filter"
+      ],
+      "port": 3002
     }
   ]
 }
